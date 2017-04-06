@@ -5,5 +5,4 @@
              android:id="@+id/main_l"
              android:gravity="center"
 >
-
 </TableLayout>
