@@ -1,54 +1,52 @@
-package com.example.courseproject;
-
 public class Game {
     /**
-     * РРіСЂРѕРєРё
+     * Игроки
      */
     private Player[] players;
     /**
-     * РџРѕР»Рµ
+     * Поле
      */
     private Square[][] field;
     /**
-     * РЅР°С‡Р°С‚Р° Р»Рё РёРіСЂР°?
+     * начата ли игра?
      */
     private boolean started;
     /**
-     * РўРµРєСѓС‰РёР№ РёРіСЂРѕРє
+     * Текущий игрок
      */
     private Player activePlayer;
     /**
-     * РЎС‡РёС‚Р°РµС‚ РєРѕР»Р»РёС‡РµСЃС‚РІРѕ Р·Р°РїРѕР»РЅРµРЅРЅС‹С… СЏС‡РµРµРє
+     * Считает колличество заполненных ячеек
      */
     private int filled;
     /**
-     * Р’СЃРµРіРѕ СЏС‡РµРµРє
+     * Всего ячеек
      */
     private int squareCount;
     /**
-     * Р”Р»СЏ РїСЂРѕРІРµСЂРєРё РїРѕР»СЏ
+     * Для проверки поля
      */
     private WinnerCheckerInterface[] winnerCheckers;
 
     /**
-     * РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+     * Конструктор
      */
     public Game() {
         field = new Square[3][3];
         squareCount = 0;
-        // Р·Р°РїРѕР»РЅРµРЅРёРµ РїРѕР»СЏ
+        // заполнение поля
         for (int i = 0, l = field.length; i < l; i++) {
             for (int j = 0, l2 = field[i].length; j < l2; j++) {
                 field[i][j] = new Square();
                 squareCount++;
             }
         }
-        players = new Player[2];                            //Р”РІР° РёРіСЂРѕРєР°
-        started = false;                                    //РРіСЂР° РЅРµ РЅР°С‡Р°С‚Р°
-        activePlayer = null;                                //РўРµРєСѓС‰РёР№ РёРіСЂРѕРє
-        filled = 0;                                         //РќРё РѕРґРЅРѕР№ СЏС‡РµР№РєРё РЅРµ Р·Р°РїРѕР»РЅРµРЅРѕ
+        players = new Player[2];                            //Два игрока
+        started = false;                                    //Игра не начата
+        activePlayer = null;                                //Текущий игрок
+        filled = 0;                                         //Ни одной ячейки не заполнено
         /**
-         * РЎРѕР·РґР°РЅРёРµ РєР»Р°СЃСЃРѕРІ РґР»СЏ РїРѕРёСЃРєР° РїРѕР±РµРґРёС‚РµР»СЏ
+         * Создание классов для поиска победителя
          */
         winnerCheckers = new WinnerCheckerInterface[4];
         winnerCheckers[0] = new WinnerCheckerHorizontal(this);
@@ -58,7 +56,7 @@ public class Game {
     }
 
     /**
-     * РќР°С‡Р°Р»Рѕ РёРіСЂС‹
+     * Начало игры
      */
     public void start() {
         resetPlayers();
@@ -66,7 +64,7 @@ public class Game {
     }
 
     /**
-     * РџСЂРёСЃРІР°РёРІР°РЅРёРµ РёРіСЂРѕРєР°Рј РёС… СЃРёРјРІРѕР»Р°
+     * Присваивание игрокам их символа
      */
     private void resetPlayers() {
         players[0] = new Player("X");
@@ -79,45 +77,45 @@ public class Game {
     }
 
     /**
-     * @param player - Р°РєС‚РёРІРЅС‹Р№ РёРіСЂРѕРє
+     * @param player - активный игрок
      */
     private void setCurrentActivePlayer(Player player) {
         activePlayer = player;
     }
 
     /**
-     * РџРµСЂРµРґР°С‚СЊ С…РѕРґ РґСЂСѓРіРѕРјСѓ РёРіСЂРѕРєСѓ
+     * Передать ход другому игроку
      *
      * @param x
      * @param y
-     * @return - РјРѕР¶РЅРѕ Р»Рё РїРѕС…РѕРґРёС‚СЊ РёРіСЂРѕРєСѓ
+     * @return - можно ли походить игроку
      */
     public boolean makeTurn(int x, int y) {
         if (field[x][y].isFilled()) {
-            return false;                                       //Р•СЃР»Рё СЏС‡РµР№РєР° Р·Р°РїРѕР»РЅРµРЅР°, С‚Рѕ С…РѕРґРёС‚СЊ РЅРµР»СЊР·СЏ
+            return false;                                       //Если ячейка заполнена, то ходить нельзя
         }
-        field[x][y].fill(getCurrentActivePlayer());             //Р—Р°РїРѕР»РЅРµРЅРёРµ СЏС‡РµР№РєРё СЃРёРјРІРѕР»РѕРј РёРіСЂРѕРєР°
-        filled++;                                               //РЈРІРµР»РёС‡РµРЅРёРµ Р·Р°РїРѕР»РЅРµРЅРЅС‹С… СЏС‡РµРµРє
-        switchPlayers();                                        //РџРµСЂРµРґР°С‡Р° СѓРїСЂР°РІР»РµРЅРёСЏ РґСЂСѓРіРѕРјСѓ РёРіСЂРѕРєСѓ
+        field[x][y].fill(getCurrentActivePlayer());             //Заполнение ячейки символом игрока
+        filled++;                                               //Увеличение заполненных ячеек
+        switchPlayers();                                        //Передача управления другому игроку
         return true;
     }
 
     /**
-     * РџРµСЂРґР°С‡Р° СѓРїСЂР°РІР»РµРЅРёСЏ РґСЂСѓРіРѕРјСѓ РёРіСЂРѕРєСѓС‹
+     * Пердача управления другому игрокуы
      */
     public void switchPlayers() {
         activePlayer = (activePlayer == players[0]) ? players[1] : players[0];
     }
 
     /**
-     * @return Р°РєС‚РёРІРЅРѕРіРѕ РёРіСЂРѕРєР°
+     * @return активного игрока
      */
     public Player getCurrentActivePlayer() {
         return activePlayer;
     }
 
     /**
-     * Р—Р°РїРѕР»РЅРµРЅР° Р»Рё РёРіСЂРѕРІР°СЏ РґРѕСЃРєР°
+     * Заполнена ли игровая доска
      *
      * @return
      */
@@ -126,8 +124,8 @@ public class Game {
     }
 
     /**
-     * РџСЂРѕРІРµСЂРєР° РЅР° РїРѕР±РµРґРёС‚РµР»СЏ
-     * @return РёРіСЂРѕРє - РїРѕР±РµРґРёС‚РµР»СЊ
+     * Проверка на победителя
+     * @return игрок - победитель
      */
     public Player checkWinner() {
         for (WinnerCheckerInterface winChecker : winnerCheckers) {
@@ -139,7 +137,7 @@ public class Game {
         return null;
     }
     /**
-     * РЎР±СЂРѕСЃ РёРіСЂС‹
+     * Сброс игры
      */
     public void reset() {
         resetField();
@@ -147,7 +145,7 @@ public class Game {
     }
 
     /**
-     * РЎР±СЂРѕСЃ РёРіСЂРѕРІРѕРіРѕ РїРѕР»СЏ
+     * Сброс игрового поля
      */
     private void resetField() {
         for (int i = 0, l = field.length; i < l; i++) {
@@ -159,3 +157,4 @@ public class Game {
     }
 
 }
+

@@ -1,20 +1,27 @@
 package com.example.courseproject;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
 
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.Semaphore;
+
 
 public class MainActivity extends Activity {
+
     private Game game;
     private Button[][] buttons = new Button[3][3];                      //Поле из кнопок 3 на 3
     private TableLayout layout;                                         //layout в виде таблицы
+   // Server server;
+    Client client;
+    Semaphore semaphore = new Semaphore(1);
 
     public MainActivity() {
         game = new Game();
@@ -43,19 +50,31 @@ public class MainActivity extends Activity {
          * Реакция слушателя на нажатие кнопки
          */
         public void onClick(View view) {
-            Button button = (Button) view;
-            Game g = game;
-            Player player = g.getCurrentActivePlayer();
-            if (game.makeTurn(x, y)) {
-                button.setText(player.getName());
+            if(client!=null)
+            {
+                Button button = (Button) view;
+                if(button.getText() == null)
+                {
+                    button.setText("X");
+                    client.write(Integer.toString(x),Integer.toString(y));
+                }
+                WaitOtherPlayer w = new WaitOtherPlayer(buttons, semaphore);
+                w.execute();
+
             }
-            Player winner = g.checkWinner();
-            if (winner != null) {
-                gameOver(winner);
-            }
-            if (g.isFieldFilled()) {  // в случае, если поле заполнено
-                gameOver();
-            }
+        }
+    }
+
+    public class ClientListener implements View.OnClickListener {
+
+        public ClientListener() {
+        }
+        /**
+         * Реакция слушателя на нажатие кнопки
+         */
+        public void onClick(View view) {
+            client = new Client(6666, semaphore, game, buttons);
+            client.start();
         }
     }
 
@@ -76,6 +95,22 @@ public class MainActivity extends Activity {
                     TableLayout.LayoutParams.WRAP_CONTENT));                    //Добавление строки в таблицу
         }
     }
+
+    private void buildServerClient() {
+        TableRow row = new TableRow(this);
+
+        Button clientButton = new Button(this);
+        clientButton.setText("connect to server");
+        clientButton.setOnClickListener(new ClientListener());
+        row.addView(clientButton, new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        clientButton.setWidth(100);
+        clientButton.setHeight(100);
+
+        layout.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT,
+                TableLayout.LayoutParams.WRAP_CONTENT));
+    }
+
     private void gameOver(Player player) {
         CharSequence text = "Player \"" + player.getName() + "\" won!";
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
@@ -113,5 +148,6 @@ public class MainActivity extends Activity {
         game.start();
         layout = (TableLayout) findViewById(R.id.main_l);       //Поиск layout по id
         buildGameField();
+        buildServerClient();
     }
 }
